@@ -1,13 +1,12 @@
 /* *****************************************************************************
- *  Name:
- *  Date:
- *  Description:
+ *  Name: Shuyao Tan
+ *  Date: 11/16/2020
+ *  Description: Assignment 2
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.StdOut;
 
 import java.util.Iterator;
-import java.util.ListIterator;
 
 public class Deque<Item> implements Iterable<Item> {
     private Node first;
@@ -35,7 +34,6 @@ public class Deque<Item> implements Iterable<Item> {
         if (item == null) {
             throw new IllegalArgumentException();
         }
-
         Node oldFirst = first;
         first = new Node();
         first.item = item;
@@ -46,10 +44,7 @@ public class Deque<Item> implements Iterable<Item> {
             first.next = oldFirst;
             oldFirst.prev = first;
         }
-
-        StdOut.println("added first: " + item);
         size++;
-
     }
 
     // add the item to the back
@@ -67,23 +62,23 @@ public class Deque<Item> implements Iterable<Item> {
         else {
             oldLast.next = last;
             last.prev = oldLast;
-            last.next = null;
         }
         size++;
-        StdOut.println("added last: " + item);
     }
 
     // remove and return the item from the front
     public Item removeFirst() {
         if (isEmpty())
             throw new java.util.NoSuchElementException();
+        size--;
         Item item = first.item;
         Node oldFirst = first;
         if (size() == 0) {
             first = null;
+            last = null;
         }
         first = oldFirst.next;
-        size--;
+        oldFirst = null;
         return item;
     }
 
@@ -91,72 +86,50 @@ public class Deque<Item> implements Iterable<Item> {
     public Item removeLast() {
         if (isEmpty())
             throw new java.util.NoSuchElementException();
-
+        size--;
         Item item = last.item;
         Node oldLast = last;
+
         if (size == 0) {
             last = null;
+            first = null;
         }
-        // StdOut.println("last: " + last.item + " size: " + size);
         last = oldLast.prev;
-        // StdOut.println("what now: " + last);
-        size--;
+        oldLast = null;
         return item;
     }
 
     // return an iterator over items in order from front to back
     public Iterator<Item> iterator() {
-        return new ListIterator<Item>() {
-            private Node current = first;
+        return new ListIterator();
+    }
 
-            public boolean hasNext() {
-                return current != null;
+    private class ListIterator implements Iterator<Item> {
+        private Node current = first;
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public Item next() {
+            if (current == null) {
+                throw new java.util.NoSuchElementException();
             }
+            Item item = current.item;
+            current = current.next;
+            return item;
+        }
 
-            public Item next() {
-                if (current == null) {
-                    throw new java.util.NoSuchElementException();
-                }
-                Item item = current.item;
-                current = current.next;
-                return item;
-            }
-
-            public boolean hasPrevious() {
-                return false;
-            }
-
-            public Item previous() {
-                return null;
-            }
-
-            public int nextIndex() {
-                return 0;
-            }
-
-            public int previousIndex() {
-                return 0;
-            }
-
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-
-            public void set(Item item) {
-
-            }
-
-            public void add(Item item) {
-
-            }
-        };
+        public void remove() {
+            throw new UnsupportedOperationException("function not supported");
+        }
     }
 
     // unit testing (required)
     public static void main(String[] args) {
         Deque<Integer> dq = new Deque<>();
         // addFirst and removeLast
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             dq.addFirst(i);
             StdOut.println("size: " + dq.size());
         }
