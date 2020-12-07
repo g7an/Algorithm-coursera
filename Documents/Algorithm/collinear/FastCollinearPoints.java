@@ -28,50 +28,47 @@ public class FastCollinearPoints {
         Point[] pts = points.clone();
         Arrays.sort(pts);
 
-
-        // int index = 0;
-        // while (index++ < ptSize) {
-        //     Point p = pts[index];
-        //     Arrays.sort(pts, p.slopeOrder());
-        //
-        // }
-
         for (int i = 0; i < ptSize - 1; i++) {
             Point p = pts[i];
-            Arrays.sort(pts, p.slopeOrder());
-            for (Point pt : pts) {
+            // deep copy of sorted points
+            Point[] sortedPoints = pts.clone();
+            Arrays.sort(sortedPoints, p.slopeOrder());
+            for (Point pt : sortedPoints) {
                 StdOut.println(i + ": " + pt);
             }
-            // collinearPts.add(0, p);
             ArrayList<Point> collinearPts = new ArrayList<>();
-            ArrayList<Double> slopeList = new ArrayList<Double>();
-            double slope = p.slopeTo(pts[i + 1]);
 
+            // double slope = p.slopeTo(sortedPoints[i]);
             for (int j = 1; j < ptSize; j++) {
+                double slope = p.slopeTo(sortedPoints[j]);
                 StdOut.println("slope: " + slope);
-                StdOut.println("p " + p + " , p j " + pts[j]);
-                if (p.slopeTo(pts[j]) == slope) {
-                    collinearPts.add(pts[j]);
-                    StdOut.println("now size: " + collinearPts.size());
+                collinearPts.add(sortedPoints[j]);
+                for (int k = j + 1; k < ptSize; k++) {
+                    if (p.slopeTo(sortedPoints[k]) == slope) {
+                        collinearPts.add(sortedPoints[k]);
+                        StdOut.println(
+                                "p " + p + " , p j " + sortedPoints[j] + "p k" + sortedPoints[k]);
+                        StdOut.println("now size: " + collinearPts.size());
+                    }
+                    if (collinearPts.size() >= 3
+                            && p.compareTo(collinearPts.get(0)) < 0 && isUnique(resSegment, p,
+                                                                                collinearPts
+                                                                                        .get(collinearPts
+                                                                                                     .size()
+                                                                                                     - 1))) {
+                        StdOut.println(
+                                "p: " + p + " last " + collinearPts.get(collinearPts.size() - 1));
+                        resSegment
+                                .add(new LineSegment(p, collinearPts.get(collinearPts.size() - 1)));
+                    }
                 }
 
 
             }
-            if (collinearPts.size() >= 3
-                    && p.compareTo(collinearPts.get(0)) < 0 && isUnique(resSegment, p, collinearPts
-                    .get(collinearPts.size() - 1))) {
-                StdOut.println(
-                        "p: " + p + " last " + collinearPts.get(collinearPts.size() - 1));
-                resSegment.add(new LineSegment(p, collinearPts.get(collinearPts.size() - 1)));
+            ls = resSegment.toArray(new LineSegment[0]);
+            for (LineSegment l : ls) {
+                StdOut.println(l);
             }
-            //     for (Point pt : collinearPts) {
-            //         StdOut.println(pt);
-            //     }
-
-        }
-        ls = resSegment.toArray(new LineSegment[0]);
-        for (LineSegment l : ls) {
-            StdOut.println(l);
         }
     }
 
