@@ -28,11 +28,7 @@ public class FastCollinearPoints {
             // deep copy of sorted points
             Point[] sortedPoints = pts.clone();
             Arrays.sort(sortedPoints, p.slopeOrder());
-            // for (Point pt : sortedPoints) {
-            //     StdOut.println(i + ": " + pt);
-            // }
 
-            // double slope = p.slopeTo(sortedPoints[i]);
             int n = 1;
             while (n < ptSize) {
                 ArrayList<Point> collinearPts = new ArrayList<>();
@@ -51,7 +47,7 @@ public class FastCollinearPoints {
     }
 
     private void checkNull(Point[] points) {
-        if (points.length == 0)
+        if (points == null)
             throw new IllegalArgumentException("input is null");
         for (Point p : points) {
             if (p == null) {

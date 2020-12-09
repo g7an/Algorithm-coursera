@@ -9,12 +9,8 @@
  ******************************************************************************/
 
 import edu.princeton.cs.algs4.StdDraw;
-import edu.princeton.cs.algs4.StdOut;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
 public class Point implements Comparable<Point> {
 
@@ -72,7 +68,7 @@ public class Point implements Comparable<Point> {
             return Double.POSITIVE_INFINITY;
         }
         if (this.y == that.y) {
-            return (this.y - that.y) / (double) this.y;
+            return 0.0;
         }
         return (this.y - that.y) / (double) (this.x - that.x);
     }
@@ -112,7 +108,6 @@ public class Point implements Comparable<Point> {
     }
 
     private class SlopeComparator implements Comparator<Point> {
-
         private final Point point;
 
         public SlopeComparator(Point point) {
@@ -122,8 +117,6 @@ public class Point implements Comparable<Point> {
         public int compare(Point o1, Point o2) {
             double slopeFirst = o1.slopeTo(point);
             double slopeSecond = o2.slopeTo(point);
-            // StdOut.println("slope 1: " + slopeFirst);
-            // StdOut.println("slope 2: " + slopeSecond);
             return slopeFirst == slopeSecond ? 0 : (slopeFirst < slopeSecond ? -1 : 1);
         }
     }
@@ -145,29 +138,7 @@ public class Point implements Comparable<Point> {
      */
     public static void main(String[] args) {
         /* YOUR CODE HERE */
-        Point p1 = new Point(1, 1);
-        Point p2 = new Point(2, 3);
-        Point p3 = new Point(0, 0);
-        StdOut.println(p1.slopeTo(p2));
-        StdOut.println(p1.compareTo(p2));
-        List<Point> points = Arrays.asList(
-                new Point(1000, 0),
-                new Point(1, 1),
-                new Point(1, 1),
-                new Point(100, 1)
-        );
-
-        Collections.sort(points, p3.slopeOrder());
-        System.out.println(points);
-        Point[] pts = new Point[4];
-        pts[0] = new Point(1000, 2);
-        pts[1] = new Point(1, 1);
-        pts[2] = new Point(100, 1);
-        pts[3] = new Point(1, 1);
-        Arrays.sort(pts);
-        for (Point p : pts) {
-            StdOut.print(p + ", ");
-        }
+       
     }
 
 }
