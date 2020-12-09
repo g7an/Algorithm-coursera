@@ -4,6 +4,8 @@
  *  Description:
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
 import java.util.ArrayList;
@@ -79,20 +81,31 @@ public class FastCollinearPoints {
     }
 
     public static void main(String[] args) {
-        Point[] pts = new Point[8];
-        pts[0] = new Point(2, 2);
-        pts[1] = new Point(1, 1);
-        pts[2] = new Point(3, 3);
-        pts[3] = new Point(4, 4);
-        pts[4] = new Point(1, 2);
-        pts[5] = new Point(2, 4);
-        pts[6] = new Point(3, 6);
-        pts[7] = new Point(4, 8);
-        FastCollinearPoints fcp = new FastCollinearPoints(pts);
-
-        StdOut.println("Number of Segments: " + fcp.numberOfSegments());
-        for (LineSegment l : fcp.segments()) {
-            StdOut.println(l);
+        // read the n points from a file
+        In in = new In(args[0]);
+        int n = in.readInt();
+        Point[] points = new Point[n];
+        for (int i = 0; i < n; i++) {
+            int x = in.readInt();
+            int y = in.readInt();
+            points[i] = new Point(x, y);
         }
+
+        // draw the points
+        StdDraw.enableDoubleBuffering();
+        StdDraw.setXscale(0, 32768);
+        StdDraw.setYscale(0, 32768);
+        for (Point p : points) {
+            p.draw();
+        }
+        StdDraw.show();
+
+        // print and draw the line segments
+        FastCollinearPoints collinear = new FastCollinearPoints(points);
+        for (LineSegment segment : collinear.segments()) {
+            StdOut.println(segment);
+            segment.draw();
+        }
+        StdDraw.show();
     }
 }
