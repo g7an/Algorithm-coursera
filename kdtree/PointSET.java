@@ -7,8 +7,10 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
+import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -40,9 +42,7 @@ public class PointSET {
 
     // does the set contain point p?
     public boolean contains(Point2D p) {
-        if (p == null) {
-            throw new IllegalArgumentException();
-        }
+        if (p == null) throw new IllegalArgumentException("argument to contains() is null");
         if (rbTree.contains(p)) {
             return true;
         }
@@ -51,9 +51,14 @@ public class PointSET {
 
     // draw all points to standard draw
     public void draw() {
+        StdDraw.setPenColor(Color.BLACK);
+        StdDraw.setPenRadius(0.01);
+
         for (Point2D p : rbTree) {
-            p.draw();
+            StdDraw.point(p.x(), p.y());
+            // StdDraw.text(p.x(), p.y(), "(" + p.x() + ", " + p.y() + ")");
         }
+        StdDraw.show();
     }
 
     // all points that are inside the rectangle (or on the boundary)
@@ -120,11 +125,13 @@ public class PointSET {
             brute.insert(p);
         }
         // brute.print();
+        StdOut.println("PointSET");
         StdOut.println("is empty? " + brute.isEmpty());
         StdOut.println("size: " + brute.size());
         Point2D pt = new Point2D(0.011, 0.001);
         brute.insert(pt);
         StdOut.println("insert successful? " + brute.contains(pt));
+        brute.draw();
         RectHV rect = new RectHV(0.1, 0.1, 0.4, 0.8);
         StdOut.println("point within range: ");
         for (Point2D p : brute.range(rect)) {
