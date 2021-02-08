@@ -214,8 +214,7 @@ public class KdTree {
          pruning of the second subtree.
          */
         double minDist = root.p.distanceTo(p);
-        searchPt(root, p, minDist);
-        return nearestPt;
+        return searchPt(root, p, minDist);
     }
 
     private Point2D searchPt(Node node, Point2D pt, double minDist) {
@@ -225,19 +224,27 @@ public class KdTree {
         }
         int cmp = 0;
         if (node.isVertical) {
-            cmp = Point2D.X_ORDER.compare(node.p, pt);
+            cmp = Point2D.X_ORDER.compare(pt, node.p);
         }
         else {
-            cmp = Point2D.Y_ORDER.compare(node.p, pt);
+            cmp = Point2D.Y_ORDER.compare(pt, node.p);
         }
-        if (cmp > 0 && minDist > node.left.rect.distanceTo(pt)) {
+        if (node.left != null && cmp < 0 && minDist > node.left.rect.distanceTo(pt)) {
             /*
             children's going to right, how?
              */
-            return searchPt(node.left, pt, minDist);
+            nearestPt = searchPt(node.left, pt, minDist);
+            if (node.right != null && minDist > node.right.rect.distanceTo(pt)) {
+                nearestPt = searchPt(node.right, pt, minDist);
+            }
         }
-        return searchPt(node.right, pt, minDist);
-
+        if (node.right != null && cmp > 0 && minDist > node.right.rect.distanceTo(pt)) {
+            nearestPt = searchPt(node.right, pt, minDist);
+            if (node.left != null && minDist > node.left.rect.distanceTo(pt)) {
+                nearestPt = searchPt(node.left, pt, minDist);
+            }
+        }
+        return nearestPt;
 
     }
 
@@ -260,9 +267,9 @@ public class KdTree {
         kdtree.insert(pt);
         StdOut.println("insert successful? " + kdtree.contains(pt));
         kdtree.draw();
-        for (Point2D p : kdtree.range(new RectHV(0.0, 0, 1, 1))) {
-            StdOut.println(p.x() + ", " + p.y());
-        }
+        Point2D newPt = new Point2D(0.1, 0.6);
+        StdOut.println(
+                "nearest point: " + kdtree.nearest(newPt).x() + ", " + kdtree.nearest(newPt).y());
 
     }
 }
