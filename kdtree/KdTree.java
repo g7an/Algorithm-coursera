@@ -10,17 +10,18 @@ import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class KdTree {
-
+    private Point2D nearestPt = null;
 
     private class Node {
         Node left;
         Node right;
         Point2D p;
-        private RectHV rect;
-        boolean isVertical;
+        private final RectHV rect;
+        private boolean isVertical;
+
 
         public Node(Point2D p, boolean isVertical, RectHV rect) {
             this.p = p;
@@ -55,6 +56,7 @@ public class KdTree {
 
     // add the point to the set (if it is not already in the set)
     public void insert(Point2D p) {
+        if (p == null) throw new IllegalArgumentException();
         /*
             if empty, insert directly;
             if not empty:
@@ -67,8 +69,6 @@ public class KdTree {
 
         }
         root = insert(root, p, root.isVertical, root.rect);
-        StdOut.println("root: " + root.p.x() + ", " + root.p.y());
-
     }
 
     private Node insert(Node node, Point2D pt, boolean isVertical, RectHV rect) {
@@ -107,6 +107,7 @@ public class KdTree {
 
     // does the set contain point p?
     public boolean contains(Point2D p) {
+        if (p == null) throw new IllegalArgumentException();
         return contains(root, p);
     }
 
@@ -118,7 +119,7 @@ public class KdTree {
             return true;
         }
 
-        if ((node.isVertical && p.x() < node.p.x()) || (!node.isVertical
+        if ((node.isVertical && p.x() <= node.p.x()) || (!node.isVertical
                 && p.y() <= node.p.y())) {
             return contains(node.left, p);
         }
@@ -132,10 +133,10 @@ public class KdTree {
         // draw the node & rect recursively
         StdDraw.rectangle(0.5, 0.5, 0.5, 0.5);
         draw(root);
-
     }
 
     private void draw(Node node) {
+
         if (node.left != null) draw(node.left);
         if (node.right != null) draw(node.right);
         // draw the point first
@@ -143,17 +144,6 @@ public class KdTree {
         StdDraw.setPenRadius(0.01);
 
         StdDraw.point(node.p.x(), node.p.y());
-        // StdDraw.line(node.p.x(), node.rect.ymin(), node.p.x(), node.rect.ymax());
-        // if (node.isVertical) {
-        //     StdDraw.setPenColor(StdDraw.RED);
-        //     StdDraw.setPenRadius(0.01);
-        //     StdDraw.line(node.p.x(), node.rect.ymin(), node.p.x(), node.rect.ymax());
-        // }
-        // else {
-        //     StdDraw.setPenColor(StdDraw.BLUE);
-        //     StdDraw.setPenRadius();
-        //     StdDraw.line(node.rect.xmin(), node.p.y(), node.rect.ymin(), node.p.y());
-        // }
         double xmin, ymin, xmax, ymax;
         if (node.isVertical) {
             StdDraw.setPenColor(StdDraw.RED);
@@ -173,7 +163,6 @@ public class KdTree {
         StdDraw.line(xmin, ymin, xmax, ymax);
     }
 
-    private LinkedList<Point2D> boundedPts = new LinkedList<>();
 
     // all points that are inside the rectangle (or on the boundary)
     public Iterable<Point2D> range(RectHV rect) {
@@ -184,20 +173,25 @@ public class KdTree {
         node (or its subtrees). A subtree is searched only if it might contain a point contained in
         the query rectangle.
          */
-        search(root, rect);
-        return boundedPts;
+        if (rect == null) throw new IllegalArgumentException("RectHV rect is not illegal!");
+        if (root != null)
+            return search(root, rect);
+        else
+            return new ArrayList<Point2D>();
     }
 
-    private void search(Node node, RectHV rect) {
-        if (node == null || !node.rect.intersects(rect)) return;
-        if (rect.contains(node.p)) {
-            boundedPts.add(node.p);
+    private ArrayList<Point2D> search(Node node, RectHV rect) {
+        ArrayList<Point2D> points = new ArrayList<Point2D>();
+        if (node.rect.intersects(rect)) {
+            if (rect.contains(node.p))
+                points.add(node.p);
+            if (node.left != null)
+                points.addAll(search(node.left, rect));
+            if (node.right != null)
+                points.addAll(search(node.right, rect));
         }
-        search(node.left, rect);
-        search(node.right, rect);
+        return points;
     }
-
-    private Point2D nearestPt = null;
 
     // a nearest neighbor in the set to point p; null if the set is empty
     public Point2D nearest(Point2D p) {
@@ -213,39 +207,46 @@ public class KdTree {
          subtree to explore—the closest point found while exploring the first subtree may enable
          pruning of the second subtree.
          */
-        double minDist = root.p.distanceTo(p);
-        return searchPt(root, p, minDist);
+        if (p == null) throw new IllegalArgumentException();
+        nearestPt = root.p;
+        return searchPt(root, p);
     }
 
-    private Point2D searchPt(Node node, Point2D pt, double minDist) {
-        if (node.p.distanceTo(pt) <= minDist) {
-            nearestPt = node.p;
-            minDist = node.p.distanceTo(pt);
+    private Point2D searchPt(Node node, Point2D pt) {
+        if (node.p.equals(pt)) {
+            nearestPt = pt;
+            return nearestPt;
         }
-        int cmp = 0;
-        if (node.isVertical) {
-            cmp = Point2D.X_ORDER.compare(pt, node.p);
+
+        if (nearestPt.distanceSquaredTo(pt) < node.rect
+                .distanceSquaredTo(pt)) {
+            return nearestPt;
         }
         else {
-            cmp = Point2D.Y_ORDER.compare(pt, node.p);
-        }
-        if (node.left != null && cmp < 0 && minDist > node.left.rect.distanceTo(pt)) {
-            /*
-            children's going to right, how?
-             */
-            nearestPt = searchPt(node.left, pt, minDist);
-            if (node.right != null && minDist > node.right.rect.distanceTo(pt)) {
-                nearestPt = searchPt(node.right, pt, minDist);
+            if (node.p.distanceSquaredTo(pt) <= nearestPt.distanceSquaredTo(pt)) {
+                nearestPt = node.p;
             }
-        }
-        if (node.right != null && cmp > 0 && minDist > node.right.rect.distanceTo(pt)) {
-            nearestPt = searchPt(node.right, pt, minDist);
-            if (node.left != null && minDist > node.left.rect.distanceTo(pt)) {
-                nearestPt = searchPt(node.left, pt, minDist);
+            int cmp = 0;
+            if (node.isVertical) {
+                cmp = Point2D.X_ORDER.compare(pt, node.p);
             }
+            else {
+                cmp = Point2D.Y_ORDER.compare(pt, node.p);
+            }
+            if (node.left != null && cmp <= 0) {
+                nearestPt = searchPt(node.left, pt);
+                if (node.right != null) {
+                    nearestPt = searchPt(node.right, pt);
+                }
+            }
+            if (node.right != null && cmp > 0) {
+                nearestPt = searchPt(node.right, pt);
+                if (node.left != null) {
+                    nearestPt = searchPt(node.left, pt);
+                }
+            }
+            return nearestPt;
         }
-        return nearestPt;
-
     }
 
 
@@ -259,7 +260,6 @@ public class KdTree {
             Point2D p = new Point2D(x, y);
             kdtree.insert(p);
         }
-        // brute.print();
         StdOut.println("kdTree");
         StdOut.println("is empty? " + kdtree.isEmpty());
         StdOut.println("size: " + kdtree.size());
@@ -267,9 +267,8 @@ public class KdTree {
         kdtree.insert(pt);
         StdOut.println("insert successful? " + kdtree.contains(pt));
         kdtree.draw();
-        Point2D newPt = new Point2D(0.1, 0.6);
+        Point2D newPt = new Point2D(0.342, 0.094);
         StdOut.println(
                 "nearest point: " + kdtree.nearest(newPt).x() + ", " + kdtree.nearest(newPt).y());
-
     }
 }
